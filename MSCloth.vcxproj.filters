@@ -7,6 +7,9 @@
     <ClCompile Include="src\solver.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\cloth.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\spring.h">
@@ -19,6 +22,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\vec3.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cloth.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

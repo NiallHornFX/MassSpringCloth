@@ -319,14 +319,16 @@ float vec3<T>::radtoDeg(float rad)
 template <class T>
 VEC3_INLINE vec3<T> operator* (const float mult, const vec3<T> &vec)
 {
-	return (vec.x *= mult, vec.y *= mult, vec.z *= mult);
+	vec3<T> tmp = vec; 
+	return vec3<T>(tmp.x *= mult, tmp.y *= mult, tmp.z *= mult);
 }
 
 // s1 + v1 ---> v1;
 template <class T>
 VEC3_INLINE vec3<T> operator+ (const float add, const vec3<T> &vec)
 {
-	return (vec.x + add, vec.y + add, vec.z + add); 
+	vec3<T> tmp = vec;
+	return vec3<T>(tmp.x + add, tmp.y + add, tmp.z + add); 
 }
 
 #endif

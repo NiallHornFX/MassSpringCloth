@@ -11,10 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\cloth.cpp" />
     <ClCompile Include="src\mscloth.cpp" />
     <ClCompile Include="src\solver.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\cloth.h" />
     <ClInclude Include="include\particle.h" />
     <ClInclude Include="include\solver.h" />
     <ClInclude Include="include\spring.h" />
