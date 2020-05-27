@@ -1,0 +1,267 @@
+
+#include "display.h"
+
+#define GLEW_STATIC
+#include "extern/GLEW/glew.h"
+#include "extern/GLFW/glfw3.h"
+#include "glm.hpp";
+#include "gtc/matrix_transform.hpp"
+#include "gtc/type_ptr.hpp"
+
+#include <iostream>
+#include <memory>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <cassert>
+
+extern std::size_t pt_N;
+extern const int width, height;
+
+display::display(std::size_t W, std::size_t H, short major, short minor, const char *Title) 
+	: width(W), height(H), gl_ver_major(major), gl_ver_minor(minor), title(Title)
+{
+	window_context();
+	extensions_load();
+	shader_loader("shaders/Cloth_Vertex.glsl", "shaders/Cloth_Fragment.glsl");
+	vertex_setup();
+}
+
+display::~display()
+{
+	delete cloth_vert_shader_code, delete cloth_frag_shader_code;
+	cloth_vert_shader_code = nullptr; cloth_frag_shader_code = nullptr;
+	delete cloth_vertices, delete cloth_indices;
+	cloth_vertices = nullptr; cloth_indices = nullptr;
+
+	glDeleteShader(cloth_vert_shader); cloth_vert_shader = NULL;
+	glDeleteShader(cloth_frag_shader); cloth_frag_shader = NULL;
+	glDeleteProgram(cloth_shader_prog); cloth_shader_prog = NULL;
+
+	glfwDestroyWindow(window); window = nullptr;
+}
+
+void display::window_context()
+{
+	// GLFW Setup -
+	glfwInit();
+	if (!glfwInit())
+	{
+		std::cerr << "ERR::GLFW FAILED TO INITALIZE \n";
+		std::terminate();
+	}
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, gl_ver_major);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, gl_ver_minor);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE); // Fixed Window Size. 
+	glfwWindowHint(GLFW_SAMPLES, 2); // MSAA.
+	window = glfwCreateWindow(width, height, title, NULL, NULL);
+	if (window == NULL)
+	{
+		std::cerr << "ERR::GLFW FAILED TO CREATE WINDOW \n";
+		glfwTerminate();
+		std::terminate();
+	}
+	glfwMakeContextCurrent(window); // Main Thread
+	glViewport(0, 0, width, height);
+	std::cout << "DBG::GLFW Window and Initalzation Scuessful \n \n";
+}
+
+void display::extensions_load()
+{
+	// GLEW Setup
+	glewExperimental = GL_TRUE;
+	glewInit();
+	if (glewInit() != GLEW_OK)
+	{
+		std::cerr << "ERR::GLEW FAILED TO INITALIZE \n";
+		std::terminate();
+	}
+
+	// Query GL Device and Version Info - 
+	render_device = glGetString(GL_RENDERER);
+	version = glGetString(GL_VERSION);
+
+	std::cout << "<OPENGL VERSION INFO BEGIN> \n";
+	std::cout << "RENDER DEVICE = " << render_device << "\n";
+	std::cout << "VERSION = " << version << "\n";
+	std::cout << "<OPENGL VERSION INFO END> \n \n";
+}
+
+void display::shader_checkCompile(const char *type)
+{
+	assert(type == (const char*) "vertex" || type == (const char*) "fragment");
+	int sucess_v, sucess_f;
+	const int len = 512;
+	char err_log_v[len], err_log_f[len];
+
+	// Vertex Shader Check - 
+	if (strcmp(type, "vertex") == 0)
+	{
+		glGetShaderiv(cloth_vert_shader, GL_COMPILE_STATUS, &sucess_v);
+		if (!sucess_v)
+		{
+			glGetShaderInfoLog(cloth_vert_shader, len, NULL, err_log_v);
+			std::cerr << "ERR::VERTEX SHADER " << " - " << cloth_vert_shader << " COMPILE FAILED \n " << err_log_v << std::endl;
+			std::terminate();
+		}
+	}
+
+	// Fragment Shader Check - 
+	if (strcmp(type, "fragment") == 0)
+	{
+		glGetShaderiv(cloth_frag_shader, GL_COMPILE_STATUS, &sucess_f);
+		if (!sucess_f)
+		{
+			glGetShaderInfoLog(cloth_frag_shader, len, NULL, err_log_f);
+			std::cerr << "ERR::FRAGMENT SHADER " << " - " << cloth_frag_shader << " COMPILE FAILED \n " << err_log_f << std::endl;
+			std::terminate();
+		}
+	}
+}
+
+// RenderObject_3D_OGL ShaderProgram Linker Checker MFunc Implementation - 
+void display::shader_checkLink()
+{
+	int sucess; const int len = 512; char err_log[len];
+
+	glGetProgramiv(cloth_shader_prog, GL_LINK_STATUS, &sucess);
+	if (!sucess)
+	{
+		glGetProgramInfoLog(cloth_shader_prog, len, NULL, err_log);
+		std::cerr << "ERR:SHADER-PROGRAM: " << " - " << cloth_shader_prog << " LINKAGE_FAILED" << std::endl;
+		std::cerr << err_log << std::endl;
+		std::terminate();
+	}
+}
+
+// RenderObject_3D_OGL Shader Loader Implementation - 
+void display::shader_loader(const char *vert_path, const char *frag_path)
+{
+	std::ifstream vert_shader_load, frag_shader_load;
+	std::stringstream v_shad_buf, f_shad_buf;
+	std::string temp_v, temp_f;
+
+	vert_shader_load.exceptions(std::ios::badbit | std::ios::failbit);
+	frag_shader_load.exceptions(std::ios::badbit | std::ios::failbit);
+	try
+	{
+		vert_shader_load.open(vert_path);
+		frag_shader_load.open(frag_path);
+
+		v_shad_buf << vert_shader_load.rdbuf(); temp_v = v_shad_buf.str(); 
+		f_shad_buf << frag_shader_load.rdbuf(); temp_f = f_shad_buf.str();
+
+		vert_shader_load.close();
+		frag_shader_load.close();
+
+		if (vert_shader_load.is_open() || frag_shader_load.is_open()) std::cerr << "ERR::Shader Closed Incorrectly \n";
+	}
+	catch (std::ifstream::failure err)
+	{
+		std::cerr << "ERR::Shader Load Err: " << err.what() << "\n";
+		std::terminate();
+	}
+	cloth_vert_shader_code = temp_v.c_str();
+	cloth_frag_shader_code = temp_f.c_str();
+	//std::cout << quad_vert_shader_code << "\n \n" << quad_frag_shader_code << "\n";
+
+	// Create, Compile, Link Cloth Shader Program. 
+	cloth_vert_shader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(cloth_vert_shader, 1, &cloth_vert_shader_code, NULL);
+	glCompileShader(cloth_vert_shader);
+	cloth_frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(cloth_frag_shader, 1, &cloth_frag_shader_code, NULL);
+	glCompileShader(cloth_frag_shader);
+	shader_checkCompile("vertex"); shader_checkCompile("fragment");
+
+	// Cloth Shader Program - 
+	cloth_shader_prog = glCreateProgram();
+	glAttachShader(cloth_shader_prog, cloth_vert_shader); glAttachShader(cloth_shader_prog, cloth_frag_shader);
+	glLinkProgram(cloth_shader_prog);
+	shader_checkLink();
+}
+
+void display::vertex_setup()
+{
+	glGenVertexArrays(1, &Cloth_VAO);
+	glGenBuffers(1, &Cloth_VBO);
+	glBindVertexArray(Cloth_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, Cloth_VBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, quad_vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(real), 0); // VertPos
+	glEnableVertexAttribArray(0);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// Cloth Indices Wont Change. 
+	glGenBuffers(1, &Cloth_EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Cloth_EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * (pt_N * pt_N), cloth_indices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	// Set Inital Transforms - 
+	glm::mat4 model(1.0f);
+	glm::mat4 view(1.0f);
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
+	glm::mat4 persp = glm::perspective(glm::radians(35.0f), ((float)width / (float)height), 0.1f, 100.0f); 
+
+	glUseProgram(cloth_shader_prog);
+	glUniformMatrix4fv(glGetUniformLocation(cloth_shader_prog, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	glUniformMatrix4fv(glGetUniformLocation(cloth_shader_prog, "view"), 1, GL_FALSE, glm::value_ptr(view));
+	glUniformMatrix4fv(glGetUniformLocation(cloth_shader_prog, "projection"), 1, GL_FALSE, glm::value_ptr(persp));
+	glUseProgram(0);
+
+}
+
+void display::vertex_update(real *const vertices)
+{
+	cloth_vertices = vertices;
+	glBindBuffer(GL_ARRAY_BUFFER, Cloth_VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(real) * ((pt_N * pt_N) * 3), vertices, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+
+// Render Loop inside of display class
+void display::render_loop(std::size_t step_count)
+{
+	std::size_t step = 0; 
+	glEnable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	while (!glfwWindowShouldClose(window) && step < step_count)
+	{
+		glClearColor(0.3f, 0.3f, 0.3f, 1.0); 
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+
+		glUseProgram(cloth_shader_prog);
+
+		//glBindVertexArray(Cloth_VAO);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Quad_EBO);
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		glBindVertexArray(Cloth_VAO);
+		glBindBuffer(Cloth_VBO, GL_ARRAY_BUFFER); 
+		glDrawArrays(GL_POINTS, 0, pt_N * pt_N);
+
+		// POST OP \\ 
+
+		// Clear Render State. 
+		glUseProgram(0);
+		glBindVertexArray(0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		// Swap and Poll - 
+		//glfwSwapInterval(0); // Disable vsync. 
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+}
+
+
+GLFWwindow* display::getwin()
+{
+	return window;
+}
