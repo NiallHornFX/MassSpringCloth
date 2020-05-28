@@ -218,7 +218,7 @@ void display::vertex_update(real *const vertices)
 {
 	cloth_vertices = vertices;
 	glBindBuffer(GL_ARRAY_BUFFER, Cloth_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(real) * ((pt_N * pt_N) * 3), vertices, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(real) * ((pt_N * pt_N) * 3), cloth_vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -232,7 +232,7 @@ void display::render_loop(std::size_t step_count)
 
 	while (!glfwWindowShouldClose(window) && step < step_count)
 	{
-		glClearColor(0.3f, 0.3f, 0.3f, 1.0); 
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0); 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 		glUseProgram(cloth_shader_prog);
@@ -257,9 +257,33 @@ void display::render_loop(std::size_t step_count)
 		//glfwSwapInterval(0); // Disable vsync. 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+		std::cout << "Step = " << step++ << "\n";
 	}
 }
 
+void display::render_step()
+{
+	glEnable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glUseProgram(cloth_shader_prog);
+
+	glBindVertexArray(Cloth_VAO);
+	glBindBuffer(Cloth_VBO, GL_ARRAY_BUFFER);
+	glDrawArrays(GL_POINTS, 0, pt_N * pt_N);
+
+	glUseProgram(0);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//glfwSwapInterval(0);
+	glfwSwapBuffers(window);
+	glfwPollEvents();
+}
 
 GLFWwindow* display::getwin()
 {

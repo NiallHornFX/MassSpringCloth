@@ -7,7 +7,9 @@
 #include <vector>
 #include <cstdio>
 
-// Do OGL Setup and Draw in here for now. 
+// Check Dtor Exception.
+// Why not working with RenderDoc?
+// Check Verts Pipeline. 
 
 std::size_t pt_N = 4; // NxN Size. 
 const int width = 800, height = 600;

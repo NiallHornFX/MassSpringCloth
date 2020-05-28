@@ -18,8 +18,11 @@ public:
 
 	void vertex_update(real *const vertices);
 
-	// Internal Render Loop
+	// Internal Render Loop (For Dbg only)
 	void render_loop(std::size_t step_count);
+
+	// External Render Step - (Called Within Solver or Application Loop) - 
+	void render_step();
 
 	// Get Window Externally. 
 	GLFWwindow* getwin();

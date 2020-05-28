@@ -13,7 +13,7 @@ cloth::cloth(std::size_t Nx, std::size_t Ny)
 void cloth::set_particles()
 {
 	std::size_t pt_N = nx; // Assume N*N Square
-	real r = 1.0f / pt_N;
+	real r = 1.0f / (pt_N - 1);
 
 	for (std::size_t j = 0; j < pt_N; ++j)
 	{
@@ -120,11 +120,14 @@ real* cloth::get_ptVertexPos()
 {
 	// P.x , P.y, P.z
 	real *vpos = new real[p_list.size() * 3];
+	std::cout << "DEBUG BEGIN\n";
 	for (std::size_t i = 0, j = 2; i < p_list.size(); i++, j+=3)
 	{
 		vpos[j-2] = p_list[i].p.x;
 		vpos[j-1] = p_list[i].p.y;
 		vpos[j] = p_list[i].p.z;
+		std::cout << "DEBUG Vertex = " << i << "[" << p_list[i].p.x << "," << p_list[i].p.y << "," << p_list[i].p.z << "]\n";
 	}
+	std::cout << "DEBUG END\n";
 	return vpos; 
 }
