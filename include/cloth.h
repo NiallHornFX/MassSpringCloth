@@ -10,11 +10,11 @@ typedef float real;
 class cloth
 {
 public:
-	cloth(std::size_t Nx, std::size_t Ny);
+	cloth(std::size_t Nx, std::size_t Ny, const vec3<real> &sCoeff);
 	~cloth() = default; 
 
 	void set_particles();
-	void set_springs(real Ks, real Kss, real Kb); 
+	void set_springs(const vec3<real> &sCoeff);
 
 	std::vector<particle> p_list; 
 	std::size_t nx, ny; 

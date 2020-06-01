@@ -17,7 +17,7 @@ public:
 	virtual void step();
 
 protected:
-	//virtual void init(); 
+	virtual void init(); 
 
 	cloth *Cloth;
 	vec3<real> mg; 
