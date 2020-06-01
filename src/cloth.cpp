@@ -13,7 +13,8 @@ cloth::cloth(std::size_t Nx, std::size_t Ny)
 void cloth::set_particles()
 {
 	std::size_t pt_N = nx; // Assume N*N Square
-	real r = 1.0f / (pt_N - 1);
+	real r = 1.0f / (pt_N-1.0f);
+	//r *= 0.25f; 
 
 	for (std::size_t j = 0; j < pt_N; ++j)
 	{
@@ -40,7 +41,7 @@ void cloth::set_springs(real ks, real kss, real kb)
 	{
 		std::size_t idxc;
 
-		idxc = i + pt_N * 0; // Top Edge (i, 0)
+		idxc = i + pt_N * 0; // Bottom Edge (i, 0)
 		// Struct Spring
 		p_list.at(idxc).springs.push_back(new struct_spring(&p_list.at(idxc), &p_list.at((i + 1) + pt_N * 0), 1.0f)); // ij,i+1j
 		p_list.at(idxc).springs.push_back(new struct_spring(&p_list.at(idxc), &p_list.at(i + pt_N * 1), 1.0f)); // ij,ij+1
@@ -50,7 +51,7 @@ void cloth::set_springs(real ks, real kss, real kb)
 		// Bend Spring
 		if ((i + 2) <= (pt_N-1)) p_list.at(idxc).springs.push_back(new bend_spring(&p_list.at(idxc), &p_list.at((i + 2) + pt_N * 0), 1.0f)); //ij,i+2j
 
-		idxc = i + pt_N * (pt_N - 1); // Bottom Edge (i, pt_N-1) Note i/j (pt_N-1 crange)
+		idxc = i + pt_N * (pt_N - 1); // Top Edge (i, pt_N-1) 
 		// Struct Spring
 		p_list.at(idxc).springs.push_back(new struct_spring(&p_list.at(idxc), &p_list.at((i + 1) + pt_N * (pt_N - 1)), 1.0f)); // ij,i+1j
 		// Shear Spring
@@ -119,15 +120,16 @@ void cloth::set_springs(real ks, real kss, real kb)
 real* cloth::get_ptVertexPos()
 {
 	// P.x , P.y, P.z
-	real *vpos = new real[p_list.size() * 3];
-	std::cout << "DEBUG BEGIN\n";
+	real *vpos = new real[p_list.size() * 3]; // MemLeak new Array each call ... 
+	//std::cout << "DEBUG BEGIN\n";
 	for (std::size_t i = 0, j = 2; i < p_list.size(); i++, j+=3)
 	{
 		vpos[j-2] = p_list[i].p.x;
 		vpos[j-1] = p_list[i].p.y;
 		vpos[j] = p_list[i].p.z;
-		std::cout << "DEBUG Vertex = " << i << "[" << p_list[i].p.x << "," << p_list[i].p.y << "," << p_list[i].p.z << "]\n";
+		//std::cout << "DEBUG Vertex = " << i << "[" << p_list[i].p.x << "," << p_list[i].p.y << "," << p_list[i].p.z << "]\n";
+		//std::cout << "DEBUG V = " << i << "[" << p_list[i].v.x << "," << p_list[i].v.y << "," << p_list[i].v.z << "]\n";
 	}
-	std::cout << "DEBUG END\n";
+	///std::cout << "DEBUG END\n";
 	return vpos; 
 }

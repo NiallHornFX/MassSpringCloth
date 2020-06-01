@@ -26,6 +26,7 @@ public:
 
 	// Get Window Externally. 
 	GLFWwindow* getwin();
+	int shouldClose(); 
 
 protected:
 	// Setup

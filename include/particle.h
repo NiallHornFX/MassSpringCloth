@@ -3,7 +3,8 @@
 
 #include "vec3.h"
 
-#include <list>
+//#include <list>
+#include <vector>
 
 extern std::size_t pt_N;
 typedef float real;
@@ -28,7 +29,8 @@ public:
 	static inline vec3<std::size_t> localToIdx(const vec3<real> &world_s);
 	static inline std::size_t idx_2dto1d(std::size_t i, std::size_t j); 
 
-	std::list<spring*> springs; 
+	//std::list<spring*> springs; 
+	std::vector<spring*> springs; 
 	vec3<real> p, a, v, n;
 	vec3<std::size_t> idx; 
 	real mass;

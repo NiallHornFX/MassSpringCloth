@@ -15,6 +15,8 @@
 #include <sstream>
 #include <cassert>
 
+// ! Keep all GL Includes Here only, expose via render step or getters to external app logic.
+
 extern std::size_t pt_N;
 extern const int width, height;
 
@@ -31,6 +33,8 @@ display::~display()
 {
 	delete cloth_vert_shader_code, delete cloth_frag_shader_code;
 	cloth_vert_shader_code = nullptr; cloth_frag_shader_code = nullptr;
+
+	// Display Obj Resonsible for deleting passed verts/indices arrays.
 	delete cloth_vertices, delete cloth_indices;
 	cloth_vertices = nullptr; cloth_indices = nullptr;
 
@@ -188,46 +192,50 @@ void display::vertex_setup()
 	glGenBuffers(1, &Cloth_VBO);
 	glBindVertexArray(Cloth_VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, Cloth_VBO);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, quad_vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(real), 0); // VertPos
 	glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	/*
 	// Cloth Indices Wont Change. 
 	glGenBuffers(1, &Cloth_EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Cloth_EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * (pt_N * pt_N), cloth_indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	*/
 
+	
 	// Set Inital Transforms - 
 	glm::mat4 model(1.0f);
+	model = glm::rotate(model, glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 view(1.0f);
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
-	glm::mat4 persp = glm::perspective(glm::radians(35.0f), ((float)width / (float)height), 0.1f, 100.0f); 
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f));
+	glm::mat4 persp = glm::perspective(glm::radians(45.0f), ((float)width / (float)height), 0.1f, 100.0f); 
 
 	glUseProgram(cloth_shader_prog);
 	glUniformMatrix4fv(glGetUniformLocation(cloth_shader_prog, "model"), 1, GL_FALSE, glm::value_ptr(model));
 	glUniformMatrix4fv(glGetUniformLocation(cloth_shader_prog, "view"), 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(glGetUniformLocation(cloth_shader_prog, "projection"), 1, GL_FALSE, glm::value_ptr(persp));
 	glUseProgram(0);
-
+	
 }
 
 void display::vertex_update(real *const vertices)
 {
 	cloth_vertices = vertices;
 	glBindBuffer(GL_ARRAY_BUFFER, Cloth_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(real) * ((pt_N * pt_N) * 3), cloth_vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(real) * ((pt_N * pt_N) * 3), cloth_vertices, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 
-// Render Loop inside of display class
+// Render Loop embedded inside of display class
 void display::render_loop(std::size_t step_count)
 {
 	std::size_t step = 0; 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_PROGRAM_POINT_SIZE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	while (!glfwWindowShouldClose(window) && step < step_count)
@@ -242,8 +250,8 @@ void display::render_loop(std::size_t step_count)
 		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glBindVertexArray(Cloth_VAO);
-		glBindBuffer(Cloth_VBO, GL_ARRAY_BUFFER); 
 		glDrawArrays(GL_POINTS, 0, pt_N * pt_N);
+		//glDrawArrays(GL_POINTS, 0, 18);
 
 		// POST OP \\ 
 
@@ -261,16 +269,19 @@ void display::render_loop(std::size_t step_count)
 	}
 }
 
+
+// External Render Step - (Called Within Solver or Application Loop On Display Object) - 
 void display::render_step()
 {
-	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST); // Put these in pre_renderstate setup?
+	glEnable(GL_PROGRAM_POINT_SIZE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+	// Step - 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(cloth_shader_prog);
-
 	glBindVertexArray(Cloth_VAO);
 	glBindBuffer(Cloth_VBO, GL_ARRAY_BUFFER);
 	glDrawArrays(GL_POINTS, 0, pt_N * pt_N);
@@ -288,4 +299,9 @@ void display::render_step()
 GLFWwindow* display::getwin()
 {
 	return window;
+}
+
+int display::shouldClose()
+{
+	return glfwWindowShouldClose(window);
 }

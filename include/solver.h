@@ -1,29 +1,25 @@
 #ifndef SOLVER_H
 #define SOLVER_H
 
-#include <vector>
-#include <vec3.h>
+#include "cloth.h"
+#include "vec3.h"
 
 // Solver Class, to Step Simulation.
-
-class particle;
-class spring; 
 
 typedef float real; 
 
 class solver
 {
 public:
-	solver(std::vector<particle> *P_list, std::vector<spring> *S_list, real Dt);
+	solver(cloth *Clothptr, real Dt);
 	virtual ~solver() = default; 
 
 	virtual void step();
 
 protected:
-	virtual void init(); 
+	//virtual void init(); 
 
-	std::vector<particle> *p_list; 
-	std::vector<spring> *s_list; 
+	cloth *Cloth;
 	vec3<real> mg; 
 	real dt; 
 	
