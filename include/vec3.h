@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <type_traits>
 
 #include <immintrin.h>
 
@@ -315,18 +316,22 @@ float vec3<T>::radtoDeg(float rad)
 
 // _RHS vec3<T> Operand Global Operator Overload Free Functions \\ 
 
+// Assume Scalar can be a diffrent type, aslong as it is floating_point. 
+
 // s1 * v1 ---> v1;
-template <class T>
-VEC3_INLINE vec3<T> operator* (const float mult, const vec3<T> &vec)
+template <typename F, class T>
+VEC3_INLINE vec3<T> operator* (const F mult, const vec3<T> &vec)
 {
+	if (!std::is_floating_point<F>::value) return vec; 
 	vec3<T> tmp = vec; 
 	return vec3<T>(tmp.x *= mult, tmp.y *= mult, tmp.z *= mult);
 }
 
 // s1 + v1 ---> v1;
-template <class T>
-VEC3_INLINE vec3<T> operator+ (const float add, const vec3<T> &vec)
+template <typename F, class T>
+VEC3_INLINE vec3<T> operator+ (const F add, const vec3<T> &vec)
 {
+	if (!std::is_floating_point<F>::value) return vec;
 	vec3<T> tmp = vec;
 	return vec3<T>(tmp.x + add, tmp.y + add, tmp.z + add); 
 }

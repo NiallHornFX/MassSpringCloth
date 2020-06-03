@@ -53,6 +53,8 @@ private:
 	// Buffers
 	uint Cloth_VAO, Cloth_VBO, Cloth_EBO;
 
+	// Matrices. 
+
 	// Shaders
 	uint cloth_vert_shader, cloth_frag_shader;
 	uint cloth_shader_prog;
