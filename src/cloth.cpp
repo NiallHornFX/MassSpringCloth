@@ -1,13 +1,23 @@
-
 #include "cloth.h"
+
 #include "vec3.h"
 #include "spring.h"
 
-cloth::cloth(std::size_t Nx, std::size_t Ny, const vec3<real> &sCoeff)
-	: nx(Nx), ny(Ny)
+cloth::cloth(std::size_t Nx, std::size_t Ny, const real dCoeff, const vec3<real> &sCoeff)
+	: nx(Nx), ny(Ny), damp_coeff(dCoeff)
 {
 	set_particles();
 	set_springs(sCoeff);
+}
+
+cloth::~cloth()
+{
+	// Delete Springs
+	for (spring *s : springs)
+	{
+		delete s;
+	}
+	springs.clear();
 }
 
 void cloth::set_particles()
@@ -48,19 +58,19 @@ void cloth::set_springs(const vec3<real> &sCoeff)
 
 			// Struct/Edge Springs 
 			std::size_t idx_ii = (i + 1) + pt_N * j, idx_jj = (i + pt_N * (j + 1)); // Main 2D Struct Indices. 
-			if (i + 1 <= (pt_N - 1)) p_list.at(idx_c).springs.push_back(new struct_spring(&p_list.at(idx_c), &p_list.at(idx_ii), sCoeff.x)); // (i,j)|(i+1,j)
-			if (j + 1 <= (pt_N - 1)) p_list.at(idx_c).springs.push_back(new struct_spring(&p_list.at(idx_c), &p_list.at(idx_jj), sCoeff.x)); // (i,j)|(i,j+1)
+			if (i + 1 <= (pt_N - 1)) springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_ii), sCoeff.x, STRUCT_SPRING)); // (i,j)|(i+1,j)
+			if (j + 1 <= (pt_N - 1)) springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_jj), sCoeff.x, STRUCT_SPRING)); // (i,j)|(i,j+1)
 
 			// Shear/Diagonal Springs
 			std::size_t idx_sa = (i + 1) + pt_N * (j + 1); std::size_t idx_sb = (i - 1) + pt_N * (j + 1);
-			if (i + 1 <= (pt_N - 1) && j + 1 <= (pt_N - 1)) p_list.at(idx_c).springs.push_back(new shear_spring(&p_list.at(idx_c), &p_list.at(idx_sa), sCoeff.y));
-			if (i - 1 <= (pt_N - 1) && j + 1 <= (pt_N - 1)) p_list.at(idx_c).springs.push_back(new shear_spring(&p_list.at(idx_c), &p_list.at(idx_sb), sCoeff.y));
+			if (i + 1 <= (pt_N - 1) && j + 1 <= (pt_N - 1))springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_sa), sCoeff.y, SHEAR_SPRING)); // (i,j)|(i+1,j+1)
+			if (i - 1 <= (pt_N - 1) && j + 1 <= (pt_N - 1))springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_sb), sCoeff.y, SHEAR_SPRING)); // (i,j)|(i-1,j+1)
 			// Each Diaglonal Shear Spring case? Can have 2 per particle if possible +/-i1,+j
 
 			// Bend Spring
 			std::size_t idx_ba = (i + 2) + pt_N * j; std::size_t idx_bb = i + pt_N * (j + 2);
-			if (i+2 <= (pt_N - 1)) p_list.at(idx_c).springs.push_back(new struct_spring(&p_list.at(idx_c), &p_list.at(idx_ba), sCoeff.y));
-			if (j+2 <= (pt_N - 1)) p_list.at(idx_c).springs.push_back(new struct_spring(&p_list.at(idx_c), &p_list.at(idx_bb), sCoeff.y));	
+			if (i+2 <= (pt_N - 1))springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_ba), sCoeff.y, BEND_SPRING)); // (i,j)|(i+2,j)
+			if (j+2 <= (pt_N - 1))springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_bb), sCoeff.y, BEND_SPRING)); // (i,j)|(i,j+2)	
 		}
 	}
 }
@@ -68,19 +78,13 @@ void cloth::set_springs(const vec3<real> &sCoeff)
 // Get Particlee Postions For GL Vertices - 
 real* cloth::get_ptVertexPos()
 {
-	std::size_t w_spring = 0; 
-
 	// P.x , P.y, P.z
 	real *vpos = new real[p_list.size() * 3]; // MemLeak new Array each call ... 
 	for (std::size_t i = 0, j = 2; i < p_list.size(); i++, j+=3)
 	{
-		//p_list[i].dbg_springcount();
-		if (p_list[i].springs.size() != 0) w_spring++;
-
 		vpos[j-2] = p_list[i].p.x;
 		vpos[j-1] = p_list[i].p.y;
 		vpos[j] = p_list[i].p.z;
 	}
-	//std::cout << "Total Pts with Springs == " << w_spring << " out of " << pt_N*pt_N << " Particles\n";
 	return vpos; 
 }

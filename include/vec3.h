@@ -51,6 +51,9 @@ public:
 	VEC3_INLINE vec3& normalize();
 	vec3& clear(); 
 
+	// Sign Switching
+	VEC3_INLINE vec3 operator-() const { return vec3<T>(-this->x, -this->y, -this->z); }
+
 	// LHS vec3 Arithmetic Overloads - Return new vec3 with operation of this and B vec3 completed. Do Not Modifiy this.
 	VEC3_INLINE vec3 operator+ (const vec3 &b) const;
 	VEC3_INLINE vec3 operator- (const vec3 &b) const;

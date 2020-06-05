@@ -1,4 +1,3 @@
-
 #include "display.h"
 
 #define GLEW_STATIC
@@ -227,47 +226,7 @@ void display::vertex_update(real *const vertices)
 }
 
 
-// Render Loop embedded inside of display class
-void display::render_loop(std::size_t step_count)
-{
-	std::size_t step = 0; 
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_PROGRAM_POINT_SIZE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	while (!glfwWindowShouldClose(window) && step < step_count)
-	{
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0); 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-
-		glUseProgram(cloth_shader_prog);
-
-		//glBindVertexArray(Cloth_VAO);
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Quad_EBO);
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-		glBindVertexArray(Cloth_VAO);
-		glDrawArrays(GL_POINTS, 0, pt_N * pt_N);
-		//glDrawArrays(GL_POINTS, 0, 18);
-
-		// POST OP \\ 
-
-		// Clear Render State. 
-		glUseProgram(0);
-		glBindVertexArray(0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		// Swap and Poll - 
-		//glfwSwapInterval(0); // Disable vsync. 
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-		std::cout << "Step = " << step++ << "\n";
-	}
-}
-
-
-// External Render Step - (Called Within Solver or Application Loop On Display Object) - 
+// External Render Step - (Called Within Application Loop) - 
 void display::render_step()
 {
 	glEnable(GL_DEPTH_TEST); // Put these in pre_renderstate setup?

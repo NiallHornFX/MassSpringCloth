@@ -10,14 +10,16 @@ typedef float real;
 class cloth
 {
 public:
-	cloth(std::size_t Nx, std::size_t Ny, const vec3<real> &sCoeff);
-	~cloth() = default; 
+	cloth(std::size_t Nx, std::size_t Ny, const real dCoeff, const vec3<real> &sCoeff);
+	~cloth();
 
 	void set_particles();
 	void set_springs(const vec3<real> &sCoeff);
 
+	std::vector<spring*> springs;
 	std::vector<particle> p_list; 
 	std::size_t nx, ny; 
+	real damp_coeff; 
 
 	real* get_ptVertexPos();
 	// Get Particle-Vertex Pos, and Indices.. in POD format for GL. 

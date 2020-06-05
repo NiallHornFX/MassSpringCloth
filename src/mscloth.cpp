@@ -1,4 +1,4 @@
-// WIP !
+// Simple Mass Spring Cloth Solver 
 
 #include "cloth.h"
 #include "display.h"
@@ -8,27 +8,18 @@
 #include <vector>
 #include <cstdio>
 
-#define USE_EXTERNAL_STEP 1
-
-// Application Logic/Solve and Render step polls within main fornow. 
-// RHS Edge no springs...
-
-// Check Dtor Exception.
-// Springs Dbg !
-
 std::size_t pt_N = 16; // NxN Size. 
-real struct_c = 50.0f, shear_c = 50.0f, bend_c = 10.0f; 
+const real struct_c = 50.0f, shear_c = 50.0f, bend_c = 10.0f, damp_c = 7.5f;
 const int width = 800, height = 600;
 
 int main(int argc, char *argv[])
 {
 	display disp(width, height, 4, 3, "MSCloth");
-	cloth Cloth(pt_N, pt_N, vec3<real>(struct_c, shear_c, bend_c));
+	cloth Cloth(pt_N, pt_N, damp_c, vec3<real>(struct_c, shear_c, bend_c));
 
 	// Pass Cloth to solver ...
 	solver solve(&Cloth, (real) 1.0f / 240.0f);
 	
-	#if USE_EXTERNAL_STEP == 1
 	// External Sim and Render Step TODO (Encap into App class)
 	std::size_t step = 0;
 	while (step < 1000 && !(disp.shouldClose()))
@@ -42,9 +33,4 @@ int main(int argc, char *argv[])
 		std::cout << "Step = " << step++ << "\n";
 	}
 	return 0;
-	#else
-	disp.vertex_update(Cloth.get_ptVertexPos());
-	disp.render_loop(1000); 
-	return 0; 
-	#endif
 }

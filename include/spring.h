@@ -6,81 +6,40 @@
 
 typedef float real;
 
-// Sepreate Spring Classes derive from base, to implement eval_spring(). Cur all same ! 
-// ?Make Base Def imp non ABC. 
+enum spring_type
+{
+	STRUCT_SPRING = 0, SHEAR_SPRING, BEND_SPRING
+};
 
-// Spring ABC.
 class spring
 {
 public:
-	spring(particle *P0, particle *P1, real K)
-		: p0(P0), p1(P1), k(K) 
+	spring(particle *P0, particle *P1, real K, spring_type sty)
+		: p0(P0), p1(P1), k(K), st(sty)
 	{
 		l = (p1->p - p0->p).length(); // Rest Length.
 	} 
-	virtual ~spring() = default; 
+	~spring() = default; 
 
-	virtual inline vec3<real> eval_spring() = 0; 
+	inline void eval_spring(); 
 
 	particle *p0, *p1;
 	real k, l;
-};
-
-class struct_spring : public spring
-{
-public:
-	struct_spring(particle *P0, particle *P1, real K)
-		: spring(P0, P1, K) {}
-
-	virtual inline vec3<real> eval_spring() override;
-};
-
-class shear_spring : public spring
-{
-public:
-	shear_spring(particle *P0, particle *P1, real K)
-		: spring(P0, P1, K) {}
-
-	virtual inline vec3<real> eval_spring() override;
-};
-
-class bend_spring : public spring
-{
-public:
-	bend_spring(particle *P0, particle *P1, real K)
-		: spring(P0, P1, K) {}
-
-	virtual inline vec3<real> eval_spring() override;
+	spring_type st; 
 };
 
 
+// \\ 
 
-// DEF \\ 
-
-// Structual Spring - 
-vec3<real> struct_spring::eval_spring()
+void spring::eval_spring()
 {
 	// k * (L - ||p-q||) * (p-q)/(||p-q||)
 	vec3<real> pq = (p0->p - p1->p); real pql = pq.length();
-	return k * (l - pql) * pq.normalize();
+	vec3<real> s_force =  k * (l - pql) * pq.normalize();
+
+	p0->f = s_force; p1->f = -s_force;
 }
 
-// Shear Spring - 
-vec3<real> shear_spring::eval_spring()
-{
-	// k * (L - ||p-q||) * (p-q)/(||p-q||)
-	vec3<real> pq = (p0->p - p1->p); real pql = pq.length();
-	return k * (l - pql) * pq.normalize();
-}
-
-
-// Bend Spring - 
-vec3<real> bend_spring::eval_spring()
-{
-	// k * (L - ||p-q||) * (p-q)/(||p-q||)
-	vec3<real> pq = (p0->p - p1->p); real pql = pq.length();
-	return k * (l - pql) * pq.normalize();
-}
 
 
 #endif 
