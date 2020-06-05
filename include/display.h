@@ -62,9 +62,6 @@ private:
 	// Geo Arrays
 	real   *cloth_vertices;
 	uint *cloth_indices;
-
-	// Shader Code Buffers 
-	const char *cloth_vert_shader_code, *cloth_frag_shader_code;
 };
 
 #endif

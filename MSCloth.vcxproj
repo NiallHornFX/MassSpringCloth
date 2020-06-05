@@ -14,6 +14,7 @@
     <ClCompile Include="src\cloth.cpp" />
     <ClCompile Include="src\display.cpp" />
     <ClCompile Include="src\mscloth.cpp" />
+    <ClCompile Include="src\particle.cpp" />
     <ClCompile Include="src\solver.cpp" />
   </ItemGroup>
   <ItemGroup>

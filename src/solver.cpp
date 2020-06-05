@@ -2,7 +2,7 @@
 #include "spring.h"
 
 solver::solver(cloth *Clothptr, real Dt)
-	: Cloth(Clothptr), dt(Dt), mg(vec3<real>(0.0f, -2.50f, 0.0f))
+	: Cloth(Clothptr), dt(Dt), mg(vec3<real>(0.0f, -2.80f, 0.0f))
 {
 	//
 }
@@ -44,7 +44,7 @@ void solver::step()
 			// Integrate Vel and Pos Using Forward Euler 
 			cur_pt.v += dt * cumlforce;
 			// Vel Max and Dampen - 
-			cur_pt.v *= 0.980f; 
+			cur_pt.v *= 0.950f; 
 			cur_pt.p += dt * cur_pt.v;
 		}
 	}

@@ -31,12 +31,9 @@ display::display(std::size_t W, std::size_t H, short major, short minor, const c
 
 display::~display()
 {
-	delete cloth_vert_shader_code, delete cloth_frag_shader_code;
-	cloth_vert_shader_code = nullptr; cloth_frag_shader_code = nullptr;
-
-	// Display Obj Resonsible for deleting passed verts/indices arrays.
-	delete cloth_vertices, delete cloth_indices;
-	cloth_vertices = nullptr; cloth_indices = nullptr;
+	// Display Obj Resonsible for deleting passed verts/indices arrays. Rn Deleted After Copied into VBOs. 
+	//delete cloth_vertices, delete cloth_indices;
+	//cloth_vertices = nullptr; cloth_indices = nullptr;
 
 	glDeleteShader(cloth_vert_shader); cloth_vert_shader = NULL;
 	glDeleteShader(cloth_frag_shader); cloth_frag_shader = NULL;
@@ -166,9 +163,8 @@ void display::shader_loader(const char *vert_path, const char *frag_path)
 		std::cerr << "ERR::Shader Load Err: " << err.what() << "\n";
 		std::terminate();
 	}
-	cloth_vert_shader_code = temp_v.c_str();
-	cloth_frag_shader_code = temp_f.c_str();
-	//std::cout << quad_vert_shader_code << "\n \n" << quad_frag_shader_code << "\n";
+	const char *cloth_vert_shader_code = temp_v.c_str();
+	const char *cloth_frag_shader_code = temp_f.c_str();
 
 	// Create, Compile, Link Cloth Shader Program. 
 	cloth_vert_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -227,6 +223,7 @@ void display::vertex_update(real *const vertices)
 	glBindBuffer(GL_ARRAY_BUFFER, Cloth_VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(real) * ((pt_N * pt_N) * 3), cloth_vertices, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	delete cloth_vertices; // Delete Per Frame Verts Array. 
 }
 
 

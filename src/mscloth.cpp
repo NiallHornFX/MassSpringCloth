@@ -16,8 +16,8 @@
 // Check Dtor Exception.
 // Springs Dbg !
 
-std::size_t pt_N = 12; // NxN Size. 
-real struct_c = 10.0f, shear_c = 10.0f, bend_c = 10.0f; 
+std::size_t pt_N = 16; // NxN Size. 
+real struct_c = 50.0f, shear_c = 50.0f, bend_c = 10.0f; 
 const int width = 800, height = 600;
 
 int main(int argc, char *argv[])
