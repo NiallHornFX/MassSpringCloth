@@ -20,6 +20,7 @@ public:
 	~particle() = default; 
 
 	vec3<real> p, v, f, n;
+	vec3<real> sf, df; 
 	std::size_t idx_1d; vec3<std::size_t> idx_3d;
 	real mass;
 	p_state state; 

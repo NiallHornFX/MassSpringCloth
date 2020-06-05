@@ -14,7 +14,7 @@
 #include <sstream>
 #include <cassert>
 
-// ! Keep all GL Includes Here only, expose via render step or getters to external app logic.
+// ! Keep all GL Includes And Logic Here only, expose via render step or getters to external app logic.
 
 extern std::size_t pt_N;
 extern const int width, height;

@@ -9,7 +9,8 @@
 #include <cstdio>
 
 std::size_t pt_N = 16; // NxN Size. 
-const real struct_c = 50.0f, shear_c = 50.0f, bend_c = 10.0f, damp_c = 7.5f;
+const real struct_c = 10.0f, shear_c = 10.0f, bend_c = 10.0f, damp_c = 10.0f;
+constexpr real dt = 1.0f / 240.0f; 
 const int width = 800, height = 600;
 
 int main(int argc, char *argv[])
@@ -18,7 +19,7 @@ int main(int argc, char *argv[])
 	cloth Cloth(pt_N, pt_N, damp_c, vec3<real>(struct_c, shear_c, bend_c));
 
 	// Pass Cloth to solver ...
-	solver solve(&Cloth, (real) 1.0f / 240.0f);
+	solver solve(&Cloth, dt);
 	
 	// External Sim and Render Step TODO (Encap into App class)
 	std::size_t step = 0;

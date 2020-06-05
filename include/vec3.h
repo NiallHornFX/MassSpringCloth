@@ -14,7 +14,7 @@ extern const double PI;
 
 // vec3<T> 3D Vector class with Math Operations. Can be accesed as component wise values of <T>, a Contigous <T> Array[3]  
 // or as a 4 byte wise SSE Type __m128 for internal and external simd operations. 
-// Deg2Rad and Other util functions return hardcoded single precison floats, to avoid ugly macro switching. 
+// Deg2Rad and Other util functions return hardcoded single precison floats, T Not used, not relying on T been Floating Point. 
 
 
 template <class T>

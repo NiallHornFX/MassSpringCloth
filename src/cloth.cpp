@@ -58,19 +58,19 @@ void cloth::set_springs(const vec3<real> &sCoeff)
 
 			// Struct/Edge Springs 
 			std::size_t idx_ii = (i + 1) + pt_N * j, idx_jj = (i + pt_N * (j + 1)); // Main 2D Struct Indices. 
-			if (i + 1 <= (pt_N - 1)) springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_ii), sCoeff.x, STRUCT_SPRING)); // (i,j)|(i+1,j)
-			if (j + 1 <= (pt_N - 1)) springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_jj), sCoeff.x, STRUCT_SPRING)); // (i,j)|(i,j+1)
+			if (i + 1 <= (pt_N - 1)) springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_ii), sCoeff.x, damp_coeff, STRUCT_SPRING)); // (i,j)|(i+1,j)
+			if (j + 1 <= (pt_N - 1)) springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_jj), sCoeff.x, damp_coeff, STRUCT_SPRING)); // (i,j)|(i,j+1)
 
 			// Shear/Diagonal Springs
 			std::size_t idx_sa = (i + 1) + pt_N * (j + 1); std::size_t idx_sb = (i - 1) + pt_N * (j + 1);
-			if (i + 1 <= (pt_N - 1) && j + 1 <= (pt_N - 1))springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_sa), sCoeff.y, SHEAR_SPRING)); // (i,j)|(i+1,j+1)
-			if (i - 1 <= (pt_N - 1) && j + 1 <= (pt_N - 1))springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_sb), sCoeff.y, SHEAR_SPRING)); // (i,j)|(i-1,j+1)
+			if (i + 1 <= (pt_N - 1) && j + 1 <= (pt_N - 1))springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_sa), sCoeff.y, damp_coeff, SHEAR_SPRING)); // (i,j)|(i+1,j+1)
+			if (i - 1 <= (pt_N - 1) && j + 1 <= (pt_N - 1))springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_sb), sCoeff.y, damp_coeff, SHEAR_SPRING)); // (i,j)|(i-1,j+1)
 			// Each Diaglonal Shear Spring case? Can have 2 per particle if possible +/-i1,+j
 
 			// Bend Spring
 			std::size_t idx_ba = (i + 2) + pt_N * j; std::size_t idx_bb = i + pt_N * (j + 2);
-			if (i+2 <= (pt_N - 1))springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_ba), sCoeff.y, BEND_SPRING)); // (i,j)|(i+2,j)
-			if (j+2 <= (pt_N - 1))springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_bb), sCoeff.y, BEND_SPRING)); // (i,j)|(i,j+2)	
+			if (i+2 <= (pt_N - 1))springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_ba), sCoeff.y, damp_coeff, BEND_SPRING)); // (i,j)|(i+2,j)
+			if (j+2 <= (pt_N - 1))springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_bb), sCoeff.y, damp_coeff, BEND_SPRING)); // (i,j)|(i,j+2)	
 		}
 	}
 }
