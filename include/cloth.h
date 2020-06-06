@@ -6,6 +6,7 @@
 #include <vector>
 
 typedef float real;
+typedef unsigned int uint; 
 
 class cloth
 {
@@ -22,6 +23,8 @@ public:
 	real damp_coeff; 
 
 	real* get_ptVertexPos();
+	uint* get_ptVertexIndices(); // Call Once 
+
 	// Get Particle-Vertex Pos, and Indices.. in POD format for GL. 
 };
 

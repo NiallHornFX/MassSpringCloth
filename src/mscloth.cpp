@@ -9,7 +9,7 @@
 #include <cstdio>
 
 std::size_t pt_N = 16; // NxN Size. 
-const real struct_c = 10.0f, shear_c = 10.0f, bend_c = 10.0f, damp_c = 10.0f;
+const real struct_c = 2.5f, shear_c = 2.5f, bend_c = 2.5f, damp_c = 10.0f;
 constexpr real dt = 1.0f / 240.0f; 
 const int width = 800, height = 600;
 

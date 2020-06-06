@@ -88,3 +88,21 @@ real* cloth::get_ptVertexPos()
 	}
 	return vpos; 
 }
+
+// WIP 
+uint* cloth::get_ptVertexIndices()
+{
+	/*
+	// P.x , P.y, P.z
+	real *vpos = new real[p_list.size() * 3]; 
+	for (std::size_t i = 0, j = 2; i < p_list.size(); i++, j += 3)
+	{
+		vpos[j - 2] = p_list[i].p.x;
+		vpos[j - 1] = p_list[i].p.y;
+		vpos[j] = p_list[i].p.z;
+	}
+	return vpos;
+	*/
+	uint *t = new uint(10);
+	return t;
+}

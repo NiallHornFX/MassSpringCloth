@@ -22,6 +22,7 @@ protected:
 	cloth *Cloth;
 	vec3<real> mg; 
 	real dt; 
+	std::size_t t_step;
 	
 };
 
