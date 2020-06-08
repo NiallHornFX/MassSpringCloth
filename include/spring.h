@@ -41,6 +41,10 @@ void spring::eval_spring()
 	vec3<real> pqv = (p1->v - p0->v);
 	vec3<real> d_force = d * pqv.dot(pq) * pq;
 
+	// Divde Force by Rest Face Area ?
+	real a = 1.0f / l * l; 
+	s_force *= a; d_force *= a; 
+
 	p0->f += s_force; p1->f += -s_force;
 	p0->f += d_force; p1->f += -d_force;
 }

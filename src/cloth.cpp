@@ -3,6 +3,8 @@
 #include "vec3.h"
 #include "spring.h"
 
+#include <cassert>
+
 cloth::cloth(std::size_t Nx, std::size_t Ny, const real dCoeff, const vec3<real> &sCoeff)
 	: nx(Nx), ny(Ny), damp_coeff(dCoeff)
 {
@@ -89,20 +91,43 @@ real* cloth::get_ptVertexPos()
 	return vpos; 
 }
 
-// WIP 
+
+
+// Get PList/Vertex Indices. Vertices Updated Per Frame, Indices Not. 
 uint* cloth::get_ptVertexIndices()
 {
-	/*
-	// P.x , P.y, P.z
-	real *vpos = new real[p_list.size() * 3]; 
-	for (std::size_t i = 0, j = 2; i < p_list.size(); i++, j += 3)
+	std::size_t quad_c = (pt_N - 1) * (pt_N - 1); std::size_t tri_c = quad_c * 2; 
+	std::size_t indices_c = tri_c * 3; 
+	std::vector<uint> indices;
+
+	auto idx_2Dto1D = [&](std::size_t i, std::size_t j) -> std::size_t 
 	{
-		vpos[j - 2] = p_list[i].p.x;
-		vpos[j - 1] = p_list[i].p.y;
-		vpos[j] = p_list[i].p.z;
+		return i + pt_N * j; 
+	};
+
+	// Loop Through Pts -1 in each dim, (0 - (pt_N-2) range) thus excluding edge points. Each Point Sets 2 TriFaces pt_N-2 * pt_N-2 triangles
+	// (2D Indices 2Tris Per Quad Face) - ij, ij+1, i+1j+1 | ij, i+1j+1, i+1j
+	for (std::size_t j = 0; j < (pt_N - 1); ++j)
+	{
+		for (std::size_t i = 0; i < (pt_N - 1); ++i)
+		{
+			// TriFace 0 
+			indices.push_back(idx_2Dto1D(i, j)); 
+			indices.push_back(idx_2Dto1D(i, j + 1)); 
+			indices.push_back(idx_2Dto1D(i + 1, j+1)); 
+
+			// TriFace 1 
+			indices.push_back(idx_2Dto1D(i, j)); 
+			indices.push_back(idx_2Dto1D(i + 1, j + 1)); 
+			indices.push_back(idx_2Dto1D(i + 1, j));
+		}
 	}
-	return vpos;
-	*/
-	uint *t = new uint(10);
-	return t;
+
+	// Assert indices_c == indices.size() Should always be true.
+	assert(indices_c == indices.size()); 
+
+	uint *indices_r = new uint[indices.size()];
+	std::memcpy(indices_r, indices.data(), indices.size() * sizeof(uint));
+
+	return indices_r; 
 }

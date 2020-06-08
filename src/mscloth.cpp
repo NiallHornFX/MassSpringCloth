@@ -8,18 +8,26 @@
 #include <vector>
 #include <cstdio>
 
-std::size_t pt_N = 16; // NxN Size. 
-const real struct_c = 2.5f, shear_c = 2.5f, bend_c = 2.5f, damp_c = 10.0f;
-constexpr real dt = 1.0f / 240.0f; 
+const std::size_t pt_N = 4; // NxN Size. 
+constexpr std::size_t face_c = (pt_N - 1) * (pt_N - 1); 
+constexpr std::size_t tri_c = (pt_N - 1) * ((pt_N - 1) * 2);
+constexpr std::size_t ind_c = tri_c * 3; 
+
+const real struct_c = 10.0f, shear_c = 10.0f, bend_c = 10.0f, damp_c = 10.0f;
+constexpr real dt = 1.0f / 480.0f; 
 const int width = 800, height = 600;
 
 int main(int argc, char *argv[])
 {
-	display disp(width, height, 4, 3, "MSCloth");
+	std::cout << "Face Count = " << face_c << "  | Tri Count = " << tri_c << "   | Indices Count = " << ind_c << "\n";
+	display disp(width, height, face_c, tri_c, ind_c, 4, 3, "MSCloth");
 	cloth Cloth(pt_N, pt_N, damp_c, vec3<real>(struct_c, shear_c, bend_c));
 
 	// Pass Cloth to solver ...
 	solver solve(&Cloth, dt);
+
+	// Pass Indices - 
+	disp.set_indices(Cloth.get_ptVertexIndices());
 	
 	// External Sim and Render Step TODO (Encap into App class)
 	std::size_t step = 0;

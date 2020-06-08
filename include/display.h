@@ -12,12 +12,12 @@ class GLFWwindow;
 class display
 {
 public:
-	display(std::size_t W, std::size_t H, short major, short minor, const char *Title);
+	display(std::size_t W, std::size_t H, std::size_t fc, std::size_t tc, std::size_t ic, short major, short minor, const char *Title);
 	display() = delete;
 	~display();
 
 	void vertex_update(real *const vertices);
-
+	void set_indices(uint *const indices);
 	void render_step();
 
 	// Get Window Externally. 
@@ -38,6 +38,7 @@ protected:
 private:
 	// Window 
 	std::size_t width, height;
+	std::size_t face_c, tri_c, ind_c; 
 	const char *title;
 	GLFWwindow *window;
 
@@ -56,7 +57,7 @@ private:
 	uint cloth_shader_prog;
 
 	// Geo Arrays
-	real   *cloth_vertices;
+	real *cloth_vertices;
 	uint *cloth_indices;
 };
 

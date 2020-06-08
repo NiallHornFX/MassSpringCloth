@@ -3,7 +3,7 @@
 
 #include "vec3.h"
 
-extern std::size_t pt_N;
+extern const std::size_t pt_N;
 typedef float real;
 
 class spring; 

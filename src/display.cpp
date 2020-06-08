@@ -16,11 +16,12 @@
 
 // ! Keep all GL Includes And Logic Here only, expose via render step or getters to external app logic.
 
-extern std::size_t pt_N;
+extern const std::size_t pt_N;
+
 extern const int width, height;
 
-display::display(std::size_t W, std::size_t H, short major, short minor, const char *Title) 
-	: width(W), height(H), gl_ver_major(major), gl_ver_minor(minor), title(Title)
+display::display(std::size_t W, std::size_t H, std::size_t fc, std::size_t tc, std::size_t ic, short major, short minor, const char *Title)
+	: width(W), height(H), gl_ver_major(major), gl_ver_minor(minor), title(Title), face_c(fc), tri_c(tc), ind_c(ic)
 {
 	window_context();
 	extensions_load();
@@ -192,15 +193,6 @@ void display::vertex_setup()
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	/*
-	// Cloth Indices Wont Change. 
-	glGenBuffers(1, &Cloth_EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Cloth_EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * (pt_N * pt_N), cloth_indices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	*/
-
-	
 	// Set Inital Transforms - 
 	glm::mat4 model(1.0f);
 	model = glm::rotate(model, glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -225,6 +217,16 @@ void display::vertex_update(real *const vertices)
 	delete cloth_vertices; // Delete Per Frame Verts Array. 
 }
 
+void display::set_indices(uint *const indices)
+{
+	cloth_indices = indices;
+	uint indices_size = ind_c; 
+
+	glGenBuffers(1, &Cloth_EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Cloth_EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * indices_size, cloth_indices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
 
 // External Render Step - (Called Within Application Loop) - 
 void display::render_step()
@@ -239,8 +241,10 @@ void display::render_step()
 
 	glUseProgram(cloth_shader_prog);
 	glBindVertexArray(Cloth_VAO);
-	glBindBuffer(Cloth_VBO, GL_ARRAY_BUFFER);
-	glDrawArrays(GL_POINTS, 0, pt_N * pt_N);
+	//glDrawArrays(GL_POINTS, 0, pt_N * pt_N);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Cloth_EBO);
+	glDrawElements(GL_TRIANGLES, ind_c, GL_UNSIGNED_INT, 0);
 
 	glUseProgram(0);
 	glBindVertexArray(0);
