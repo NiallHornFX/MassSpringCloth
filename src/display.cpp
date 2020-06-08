@@ -14,6 +14,8 @@
 #include <sstream>
 #include <cassert>
 
+#define DRAW_TRIS 1
+
 // ! Keep all GL Includes And Logic Here only, expose via render step or getters to external app logic.
 
 extern const std::size_t pt_N;
@@ -241,10 +243,13 @@ void display::render_step()
 
 	glUseProgram(cloth_shader_prog);
 	glBindVertexArray(Cloth_VAO);
-	//glDrawArrays(GL_POINTS, 0, pt_N * pt_N);
 
+#if DRAW_TRIS == 0
+	glDrawArrays(GL_POINTS, 0, pt_N * pt_N);
+#else
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Cloth_EBO);
 	glDrawElements(GL_TRIANGLES, ind_c, GL_UNSIGNED_INT, 0);
+#endif
 
 	glUseProgram(0);
 	glBindVertexArray(0);

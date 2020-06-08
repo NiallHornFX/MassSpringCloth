@@ -67,7 +67,6 @@ void cloth::set_springs(const vec3<real> &sCoeff)
 			std::size_t idx_sa = (i + 1) + pt_N * (j + 1); std::size_t idx_sb = (i - 1) + pt_N * (j + 1);
 			if (i + 1 <= (pt_N - 1) && j + 1 <= (pt_N - 1))springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_sa), sCoeff.y, damp_coeff, SHEAR_SPRING)); // (i,j)|(i+1,j+1)
 			if (i - 1 <= (pt_N - 1) && j + 1 <= (pt_N - 1))springs.push_back(new spring(&p_list.at(idx_c), &p_list.at(idx_sb), sCoeff.y, damp_coeff, SHEAR_SPRING)); // (i,j)|(i-1,j+1)
-			// Each Diaglonal Shear Spring case? Can have 2 per particle if possible +/-i1,+j
 
 			// Bend Spring
 			std::size_t idx_ba = (i + 2) + pt_N * j; std::size_t idx_bb = i + pt_N * (j + 2);
@@ -90,8 +89,6 @@ real* cloth::get_ptVertexPos()
 	}
 	return vpos; 
 }
-
-
 
 // Get PList/Vertex Indices. Vertices Updated Per Frame, Indices Not. 
 uint* cloth::get_ptVertexIndices()
@@ -123,7 +120,7 @@ uint* cloth::get_ptVertexIndices()
 		}
 	}
 
-	// Assert indices_c == indices.size() Should always be true.
+	// Should always be true.
 	assert(indices_c == indices.size()); 
 
 	uint *indices_r = new uint[indices.size()];

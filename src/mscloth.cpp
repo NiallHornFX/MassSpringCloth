@@ -8,7 +8,7 @@
 #include <vector>
 #include <cstdio>
 
-const std::size_t pt_N = 4; // NxN Size. 
+const std::size_t pt_N = 8; // NxN Size. 
 constexpr std::size_t face_c = (pt_N - 1) * (pt_N - 1); 
 constexpr std::size_t tri_c = (pt_N - 1) * ((pt_N - 1) * 2);
 constexpr std::size_t ind_c = tri_c * 3; 
