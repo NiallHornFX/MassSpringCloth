@@ -22,7 +22,8 @@ public:
 	std::size_t nx, ny; 
 	real damp_coeff; 
 
-	real* get_ptVertexPos();
+	real* get_ptVertexAttribs();
+	//real* get_ptNormals(); 
 	uint* get_ptVertexIndices(); // Call Once 
 
 	// Get Particle-Vertex Pos, and Indices.. in POD format for GL. 

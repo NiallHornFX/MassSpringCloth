@@ -8,12 +8,12 @@
 #include <vector>
 #include <cstdio>
 
-const std::size_t pt_N = 8; // NxN Size. 
+const std::size_t pt_N = 16; // NxN Size. 
 constexpr std::size_t face_c = (pt_N - 1) * (pt_N - 1); 
 constexpr std::size_t tri_c = (pt_N - 1) * ((pt_N - 1) * 2);
 constexpr std::size_t ind_c = tri_c * 3; 
 
-const real struct_c = 10.0f, shear_c = 10.0f, bend_c = 10.0f, damp_c = 10.0f;
+const real struct_c = 20.0f, shear_c = 20.0f, bend_c = 20.0f, damp_c = 50.0f;
 constexpr real dt = 1.0f / 480.0f; 
 const int width = 800, height = 600;
 
@@ -31,13 +31,13 @@ int main(int argc, char *argv[])
 	
 	// External Sim and Render Step TODO (Encap into App class)
 	std::size_t step = 0;
-	while (step < 1000 && !(disp.shouldClose()))
+	while (step < 10000 && !(disp.shouldClose()))
 	{
 		// SIM STEP 
 		solve.step();
 
 		// RENDER STEP
-		disp.vertex_update(Cloth.get_ptVertexPos()); // Updt Verts
+		disp.vertex_update(Cloth.get_ptVertexAttribs()); // Updt Verts
 		disp.render_step();
 		std::cout << "Step = " << step++ << "\n";
 	}

@@ -10,6 +10,7 @@ class spring;
 
 class particle
 {
+	friend class cloth;
 public:
 	enum p_state
 	{

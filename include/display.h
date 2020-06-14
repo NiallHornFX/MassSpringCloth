@@ -16,7 +16,7 @@ public:
 	display() = delete;
 	~display();
 
-	void vertex_update(real *const vertices);
+	void vertex_update(real *const vert_p, real *const vert_n);
 	void set_indices(uint *const indices);
 	void render_step();
 
@@ -57,7 +57,8 @@ private:
 	uint cloth_shader_prog;
 
 	// Geo Arrays
-	real *cloth_vertices;
+	//real *cloth_vertices;
+	real *cloth_vert_P, *cloth_vert_N;
 	uint *cloth_indices;
 };
 

@@ -14,7 +14,7 @@
 #include <sstream>
 #include <cassert>
 
-#define DRAW_TRIS 1
+#define DRAW_TRIS 0
 
 // ! Keep all GL Includes And Logic Here only, expose via render step or getters to external app logic.
 
@@ -33,9 +33,7 @@ display::display(std::size_t W, std::size_t H, std::size_t fc, std::size_t tc, s
 
 display::~display()
 {
-	// Display Obj Resonsible for deleting passed verts/indices arrays. Rn Deleted After Copied into VBOs. 
-	//delete cloth_vertices, delete cloth_indices;
-	//cloth_vertices = nullptr; cloth_indices = nullptr;
+	delete cloth_indices; cloth_indices = nullptr; // Display Responsible for Indices Deletion.
 
 	glDeleteShader(cloth_vert_shader); cloth_vert_shader = NULL;
 	glDeleteShader(cloth_frag_shader); cloth_frag_shader = NULL;
@@ -192,6 +190,8 @@ void display::vertex_setup()
 	glBindBuffer(GL_ARRAY_BUFFER, Cloth_VBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(real), 0); // VertPos
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(real), 0); // VertNormal, Sep Arrays no offset. 
+	glEnableVertexAttribArray(1);
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -210,13 +210,16 @@ void display::vertex_setup()
 	
 }
 
-void display::vertex_update(real *const vertices)
+void display::vertex_update(real *const vert_p, real *const vert_n)
 {
-	cloth_vertices = vertices;
+	cloth_vert_P = vert_p;
+	cloth_vert_N = vert_n;
 	glBindBuffer(GL_ARRAY_BUFFER, Cloth_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(real) * ((pt_N * pt_N) * 3), cloth_vertices, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(real) * ((pt_N * pt_N) * 3), cloth_vert_P, GL_DYNAMIC_DRAW);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(real) * ((pt_N * pt_N) * 3), cloth_vert_N, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	delete cloth_vertices; // Delete Per Frame Verts Array. 
+	delete cloth_vert_P; delete cloth_vert_N; // Delete Per Frame Verts Array. 
 }
 
 void display::set_indices(uint *const indices)
