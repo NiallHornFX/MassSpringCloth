@@ -1,7 +1,9 @@
 #version 430 core 
 
+in vec4 vN; 
 in vec4 ppos; 
-in vec4 vpos; // Light in View Space. 
+in vec4 vpos; // Light in View Space.
+ 
 out vec4 frag_colour; 
 
 uniform mat4 model; 
@@ -23,7 +25,9 @@ void main()
 	
 	 
 	// Tris 
-	frag_colour = vec4((length(ppos.xyz) * vec3(0.025, 0.1, 1.0)) * d, 1.0); 
+	//frag_colour = vec4((length(ppos.xyz) * vec3(0.025, 0.1, 1.0)) * d, 1.0); 
+	
+	frag_colour = vec4(vN.xyz, 1.0); 
 	
 	// Points
 	//frag_colour = vec4(gl_PointCoord.xy, 0.0, 1.0); 

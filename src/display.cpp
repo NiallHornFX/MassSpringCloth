@@ -14,7 +14,7 @@
 #include <sstream>
 #include <cassert>
 
-#define DRAW_TRIS 0
+#define DRAW_TRIS 1
 
 // ! Keep all GL Includes And Logic Here only, expose via render step or getters to external app logic.
 
@@ -188,12 +188,12 @@ void display::vertex_setup()
 	glGenBuffers(1, &Cloth_VBO);
 	glBindVertexArray(Cloth_VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, Cloth_VBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(real), 0); // VertPos
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(real), 0); // VertPos
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(real), 0); // VertNormal, Sep Arrays no offset. 
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(real), (GLvoid*) (sizeof(real) * 3)); // VertNormal,
 	glEnableVertexAttribArray(1);
 	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0); // Will Fill Buffer Per Frame in vertex_update(). 
 
 	// Set Inital Transforms - 
 	glm::mat4 model(1.0f);
@@ -210,16 +210,14 @@ void display::vertex_setup()
 	
 }
 
-void display::vertex_update(real *const vert_p, real *const vert_n)
+void display::vertex_update(real *const vert_a)
 {
-	cloth_vert_P = vert_p;
-	cloth_vert_N = vert_n;
+	cloth_vertices = vert_a;
+	std::cout << "DEBUG ! [" << vert_a[0] << "," << vert_a[1] << "," << vert_a[2] << "," << vert_a[3] << "," << vert_a[4] << "," << vert_a[5] << "]\n";
 	glBindBuffer(GL_ARRAY_BUFFER, Cloth_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(real) * ((pt_N * pt_N) * 3), cloth_vert_P, GL_DYNAMIC_DRAW);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(real) * ((pt_N * pt_N) * 3), cloth_vert_N, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(real) * ((pt_N * pt_N) * 6), cloth_vertices, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	delete cloth_vert_P; delete cloth_vert_N; // Delete Per Frame Verts Array. 
+	delete cloth_vertices; // Delete Per Frame Verts Array. 
 }
 
 void display::set_indices(uint *const indices)
@@ -238,7 +236,8 @@ void display::render_step()
 {
 	glEnable(GL_DEPTH_TEST); // Put these in pre_renderstate setup?
 	glEnable(GL_PROGRAM_POINT_SIZE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// Step - 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0);

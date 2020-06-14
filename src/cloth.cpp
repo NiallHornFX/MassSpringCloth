@@ -77,7 +77,7 @@ void cloth::set_springs(const vec3<real> &sCoeff)
 	}
 }
 
-// Get Particlee Postions For GL Vertices - 
+// Get Particle Postions and Normal For GL Vertices - 
 real* cloth::get_ptVertexAttribs()
 {
 	// Calc Normals Of Cur Frame - 
@@ -109,8 +109,6 @@ real* cloth::get_ptVertexAttribs()
 			}
 		}
 	}
-
-
 
 	// Pack into VAttr Array -
 	
