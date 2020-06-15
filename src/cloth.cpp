@@ -111,15 +111,15 @@ real* cloth::get_ptVertexAttribs()
 	}
 
 	// Pack into VAttr Array -
-	
 	// P.x , P.y, P.z | N.x , N.y , N.z
-	real *vatr = new real[p_list.size() * 6];
+	real *vatr = new real[p_list.size() * 6]; // Passed to Display Per Frame, whom will be responsible for deletion when copied to GL VBO.
 	for (std::size_t i = 0, j = 5; i < p_list.size(); i++, j+=6)
 	{
+		// Attr 1 (N)
 		vatr[j] = p_list[i].n.z;
 		vatr[j-1] = p_list[i].n.y;
 		vatr[j-2] = p_list[i].n.x;
-
+		// Attr 0 (P)
 		vatr[j-3] = p_list[i].p.z;
 		vatr[j-4] = p_list[i].p.y;
 		vatr[j-5] = p_list[i].p.x;
@@ -127,51 +127,8 @@ real* cloth::get_ptVertexAttribs()
 	return vatr; 
 }
 
-/*
-// FIX RANGE ISSUES, 0  --> -1 min but N +1 max ..
-real* cloth::get_ptNormals()
-{
-	for (std::size_t j = 0; j < pt_N; ++j)
-	{
-		for (std::size_t i = 0; i < pt_N; ++i)
-		{
-			std::size_t idx_c = i + pt_N * j;
-			std::size_t idx_ii, idx_jj;
-			if (idx_c == 0)
-			{
-				idx_ii = idx_c + 1; 
-				idx_jj = idx_c + pt_N;
-				p_list.at(idx_c).calc_normal(p_list.at(idx_ii), p_list.at(idx_jj));
-			}
-			else if (idx_c == ((pt_N - 1) * (pt_N - 1)))
-			{
-				idx_ii = idx_c - 1;
-				idx_jj = idx_c - pt_N;
-				p_list.at(idx_c).calc_normal(p_list.at(idx_ii), p_list.at(idx_jj));
-			}
-			else
-			{
-				idx_ii = idx_c + 1;
-				idx_jj = idx_c + pt_N;
-				if (idx_jj > ( (pt_N - 1) * (pt_N - 1) )) idx_jj = idx_c - pt_N;
-				p_list.at(idx_c).calc_normal(p_list.at(idx_ii), p_list.at(idx_jj));
-			}
-		}
-	}
 
-	// N.x , N.y, N.z
-	real *vn = new real[p_list.size() * 3];  
-	for (std::size_t i = 0, j = 2; i < p_list.size(); i++, j += 3)
-	{
-		std::cout << "DEBUG NORMAL = " << i << " [" << p_list[i].n.x << "," << p_list[i].n.y << "," << p_list[i].n.z << "]\n";
-		vn[j - 2] = p_list[i].n.x;
-		vn[j - 1] = p_list[i].n.y;
-		vn[j] = p_list[i].n.z;
-	}
-	return vn;
-}*/
-
-// Get PList/Vertex Indices. Vertices Updated Per Frame, Indices Not. 
+// Get PList/Vertex Indices. Vertices ^ Updated Per Frame, Indices Not. 
 uint* cloth::get_ptVertexIndices()
 {
 	std::size_t quad_c = (pt_N - 1) * (pt_N - 1); std::size_t tri_c = quad_c * 2; 
@@ -203,12 +160,8 @@ uint* cloth::get_ptVertexIndices()
 
 	// Should always be true.
 	assert(indices_c == indices.size()); 
-
 	uint *indices_r = new uint[indices.size()];
 	std::memcpy(indices_r, indices.data(), indices.size() * sizeof(uint));
 
 	return indices_r; 
 }
-
-
-// N Calc pi+1j, pij+1 , Sep N Array.

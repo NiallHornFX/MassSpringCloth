@@ -213,7 +213,7 @@ void display::vertex_setup()
 void display::vertex_update(real *const vert_a)
 {
 	cloth_vertices = vert_a;
-	std::cout << "DEBUG ! [" << vert_a[0] << "," << vert_a[1] << "," << vert_a[2] << "," << vert_a[3] << "," << vert_a[4] << "," << vert_a[5] << "]\n";
+	//std::cout << "DEBUG ! [" << vert_a[0] << "," << vert_a[1] << "," << vert_a[2] << "," << vert_a[3] << "," << vert_a[4] << "," << vert_a[5] << "]\n";
 	glBindBuffer(GL_ARRAY_BUFFER, Cloth_VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(real) * ((pt_N * pt_N) * 6), cloth_vertices, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
