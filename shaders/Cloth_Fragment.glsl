@@ -1,11 +1,15 @@
 #version 430 core 
 
-in vec4 vN; 
-in vec4 mpos; 
-in vec4 ppos; 
-in vec4 vpos; // Light in View Space.
- 
 out vec4 frag_colour; 
+
+// Marhsalled Vertex Attribs
+in vec4 vN; 
+
+// Marshalled Vertex Vars
+in vec4 wpos; 
+in vec4 vpos; 
+in vec4 ppos; 
+
 
 uniform mat4 model; 
 uniform mat4 view; 
@@ -25,7 +29,7 @@ void main()
 	
 	 
 	// Tris 
-	frag_colour = vec4(mpos.xyz, 0.5); 
+	frag_colour = vec4(wpos.xyz, 0.5); 
 	//frag_colour = vec4((length(ppos.xyz) * vec3(0.025, 0.025, 1.0)) * d, 0.5); 
 	
 	//frag_colour = vec4(vN.xyz, 1.0); 
