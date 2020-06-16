@@ -80,7 +80,7 @@ void cloth::set_springs(const vec3<real> &sCoeff)
 // Get Particle Postions and Normal For GL Vertices - 
 real* cloth::get_ptVertexAttribs()
 {
-	// Calc Normals Of Cur Frame - 
+	// Calc Normals Of Cur Frame - (Pass Adjacent Pts)
 	for (std::size_t j = 0; j < pt_N; ++j)
 	{
 		for (std::size_t i = 0; i < pt_N; ++i)
@@ -89,9 +89,10 @@ real* cloth::get_ptVertexAttribs()
 			std::size_t idx_c = i + pt_N * j;
 			std::size_t idx_ii, idx_jj;
 
+			// Awful lot of branching, but fine for now. 
 			if (j == (pt_N - 1)) // Top Row
 			{
-				idx_ii = idx_c - 1; // Only on i pt_N-1 ? 
+				if (i == (pt_N - 1)) idx_ii = idx_c - 1; else idx_ii = idx_c + 1;  // Last TopRight pt No i+. 
 				idx_jj = idx_c - pt_N;
 				p_list.at(idx_c).calc_normal(p_list.at(idx_ii), p_list.at(idx_jj));
 			}

@@ -3,6 +3,8 @@
 
 #include <vec3.h>
 
+#include "glm.hpp";
+
 typedef float real; 
 typedef unsigned char byte; 
 typedef unsigned int uint; 
@@ -18,6 +20,7 @@ public:
 
 	void vertex_update(real *const vert_a);
 	void set_indices(uint *const indices);
+	void poll_inputs(); 
 	void render_step();
 
 	// Get Window Externally. 
@@ -30,6 +33,9 @@ protected:
 	void extensions_load();
 	void shader_loader(const char *vert_path, const char *frag_path);
 	void vertex_setup();
+
+	// Cam 
+	void cam_update();
 
 	// Util 
 	void shader_checkCompile(const char *type);
@@ -50,7 +56,10 @@ private:
 	// Buffers
 	uint Cloth_VAO, Cloth_VBO, Cloth_EBO;
 
-	// Matrices. 
+	// Matrices
+	glm::mat4 model, view, proj; 
+	glm::vec3 c_pos, c_tgt; 
+	glm::vec3 c_x, c_y, c_z; 
 
 	// Shaders
 	uint cloth_vert_shader, cloth_frag_shader;

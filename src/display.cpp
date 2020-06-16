@@ -16,14 +16,14 @@
 
 #define DRAW_TRIS 1
 
-// ! Keep all GL Includes And Logic Here only, expose via render step or getters to external app logic.
+// ! Keep all GL Includes And Logic Here only (Apart from glm.h also in header for mats), expose via render step or getters to external app logic.
 
 extern const std::size_t pt_N;
 
 extern const int width, height;
 
 display::display(std::size_t W, std::size_t H, std::size_t fc, std::size_t tc, std::size_t ic, short major, short minor, const char *Title)
-	: width(W), height(H), gl_ver_major(major), gl_ver_minor(minor), title(Title), face_c(fc), tri_c(tc), ind_c(ic)
+	: width(W), height(H), gl_ver_major(major), gl_ver_minor(minor), title(Title), face_c(fc), tri_c(tc), ind_c(ic), model(1.0f), view(1.0f), proj(1.0f)
 {
 	window_context();
 	extensions_load();
@@ -196,16 +196,21 @@ void display::vertex_setup()
 	glBindBuffer(GL_ARRAY_BUFFER, 0); // Will Fill Buffer Per Frame in vertex_update(). 
 
 	// Set Inital Transforms - 
-	glm::mat4 model(1.0f);
+
+	// Model
 	model = glm::rotate(model, glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 view(1.0f);
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f));
-	glm::mat4 persp = glm::perspective(glm::radians(45.0f), ((float)width / (float)height), 0.1f, 100.0f); 
+	// View
+	//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f));
+	c_pos = glm::vec3(0.5f, 0.5f, -2.0f); c_tgt = c_pos + glm::vec3(0.0f, 0.0f, 1.0f);
+	cam_update(); // Init Cam Basis
+	view = glm::lookAt(c_pos, c_tgt, glm::vec3(0.0, 1.0, 0.0));
+	// Proj
+	proj = glm::perspective(glm::radians(45.0f), ((float)width / (float)height), 0.1f, 100.0f); 
 
 	glUseProgram(cloth_shader_prog);
 	glUniformMatrix4fv(glGetUniformLocation(cloth_shader_prog, "model"), 1, GL_FALSE, glm::value_ptr(model));
 	glUniformMatrix4fv(glGetUniformLocation(cloth_shader_prog, "view"), 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(glGetUniformLocation(cloth_shader_prog, "projection"), 1, GL_FALSE, glm::value_ptr(persp));
+	glUniformMatrix4fv(glGetUniformLocation(cloth_shader_prog, "projection"), 1, GL_FALSE, glm::value_ptr(proj));
 	glUseProgram(0);
 	
 }
@@ -231,14 +236,14 @@ void display::set_indices(uint *const indices)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-// External Render Step - (Called Within Application Loop) - 
+// Render Step - (Called Externally, Within Application Loop) - 
 void display::render_step()
 {
 	glEnable(GL_DEPTH_TEST); // Put these in pre_renderstate setup?
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_PROGRAM_POINT_SIZE);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+	
 	// Step - 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -247,12 +252,17 @@ void display::render_step()
 	glBindVertexArray(Cloth_VAO);
 
 #if DRAW_TRIS == 0
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDrawArrays(GL_POINTS, 0, pt_N * pt_N);
 #else
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Cloth_EBO);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDrawElements(GL_TRIANGLES, ind_c, GL_UNSIGNED_INT, 0);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glDrawElements(GL_TRIANGLES, ind_c, GL_UNSIGNED_INT, 0);
 #endif
 
+	// Clear Draw State. 
 	glUseProgram(0);
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -271,4 +281,53 @@ GLFWwindow* display::getwin()
 int display::shouldClose()
 {
 	return glfwWindowShouldClose(window);
+}
+
+void display::poll_inputs()
+{
+	// CAMERA
+	glfwPollEvents();
+
+	float delta = 0.05f; 
+	bool input_changed = false; 
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		c_pos -= c_z * delta; 
+		input_changed = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		c_pos += c_z * delta;
+		input_changed = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		c_pos -= c_x * delta;
+		input_changed = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		c_pos += c_x * delta;
+		input_changed = true;
+	}
+
+	// Pitch,Yaw Update (or via GLFW CBs)... 
+
+	if (input_changed == true) cam_update();
+}
+
+
+void display::cam_update()
+{
+	c_z = glm::normalize(c_pos - c_tgt); 
+	c_x = glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), c_z);
+	c_y = glm::normalize(glm::cross(c_z, c_x));
+	// Make LookAt , Own Using Cam Basis's (seen as we have em) + (4th col) CamPos , VS. just using glm Lookat
+	//view = glm::mat4(glm::vec4(c_x.x, c_x.y, c_x.z, 0.0), glm::vec4(c_y.x, c_y.y, c_y.z, 0.0), glm::vec4(c_z.x, c_z.y, c_z.z, 0.0), glm::vec4(c_pos.x, c_pos.y, c_pos.z, 1.0f));
+	view = glm::lookAt(c_pos, c_tgt, glm::vec3(0.0f, 1.0f, 0.0f));
+	
+
+	glUseProgram(cloth_shader_prog);
+	glUniformMatrix4fv(glGetUniformLocation(cloth_shader_prog, "view"), 1, GL_FALSE, glm::value_ptr(view));
+	glUseProgram(0);
 }
