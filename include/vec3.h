@@ -46,6 +46,7 @@ public:
 	VEC3_INLINE float length() const;
 	VEC3_INLINE float dot(const vec3 &b) const;
 	VEC3_INLINE float angle(const vec3 &b) const;
+	VEC3_INLINE vec3<T> squared() const;
 
 	// vec3 Vector Math Operations, Return modified *this. 
 	VEC3_INLINE vec3& normalize();
@@ -134,6 +135,14 @@ float vec3<T>::angle(const vec3<T> &b) const
 	return theta;
 }
 
+// vec3<T> Squared 
+// this --> (x*x, y*y, z*z)
+template <class T>
+vec3<T> vec3<T>::squared() const
+{
+	return vec3<T>(x*x, y*y, z*z);
+}
+
 // vec3<T> Normalize 
 // this / ||this|| --> *this
 template <class T>
@@ -160,7 +169,6 @@ vec3<T>& vec3<T>::clear()
 	x = (T) 0, y = (T) 0, z = (T) 0;
 	return *this; 
 }
-
 
 // _LHS vec3<T> Operand overloads \\
 

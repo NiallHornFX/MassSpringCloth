@@ -35,6 +35,7 @@ void spring::eval_spring()
 {
 	// Spring Force k * (L - ||p-q||) * (p-q)/(||p-q||)
 	vec3<real> pq = (p0->p - p1->p); real pql = pq.length();
+	k *= (l / pql); // Scale (k) by Edge Length. 
 	vec3<real> s_force =  k * (l - pql) * pq.normalize();
 
 	// Dampener Force = d * ((qv - pv) * ((p-q)/(||p-q||))) * (p-q)/(||p-q||)
@@ -42,8 +43,8 @@ void spring::eval_spring()
 	vec3<real> d_force = d * pqv.dot(pq) * pq;
 
 	// Divde Force by Rest Face Area ?
-	real a = 1.0f / l * l; 
-	s_force *= a; d_force *= a; 
+	//real a = 1.0f / l * l; 
+	//s_force *= a; d_force *= a; 
 
 	p0->f += s_force; p1->f += -s_force;
 	p0->f += d_force; p1->f += -d_force;

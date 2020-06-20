@@ -8,6 +8,8 @@
 typedef float real;
 typedef unsigned int uint; 
 
+// Face Struct...
+
 class cloth
 {
 public:

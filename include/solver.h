@@ -4,7 +4,8 @@
 #include "cloth.h"
 #include "vec3.h"
 
-// Solver Class, to Step Simulation.
+// Solver Class, to Step Simulation. Possible Derive Diffrent Integrators OR Just Implement Diffrent Integrator MFs to Base?
+// Sub Solver are modualar MF/Operations makeup body of step() for a single TimeStep. (Oppose to Subclassing to Override Step MF for now).
 
 typedef float real; 
 
@@ -18,6 +19,15 @@ public:
 
 protected:
 	virtual void init(); 
+
+	// Sub Solver Operation MFs \\
+
+	// Constraint Breakage SubSolve Operations
+	void conBreak_left(short frame); 
+
+	// Integrator Implementations - 
+	void integrate_ForwardEuler();
+
 
 	cloth *Cloth;
 	vec3<real> mg; 
