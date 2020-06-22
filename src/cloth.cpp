@@ -34,7 +34,8 @@ void cloth::set_particles()
 		{
 			vec3<real> P((float)i * r, (float)j * r, 0.0f);
 			std::size_t idx_1d = i + pt_N * j; 
-			if ((i == 0 && j == (pt_N - 1)) || (i == (pt_N - 1) && j == (pt_N - 1))) // Bound to Top Left + Right Corner. 
+			//if ((i == 0 && j == (pt_N - 1)) || (i == (pt_N - 1) && j == (pt_N - 1))) // Bound to Top Left + Right Corner. 
+			if ((i == 0 && j == (pt_N - 1)) || (i == (pt_N - 1) && j == (pt_N - 1)) || (i == 0 && j == 0) || (i == (pt_N-1) && j == 0)) // Bound All Corners. 
 			//if (i == 0 || i == (pt_N - 1)) // Bound Left and Right Edge. 
 			{
 				p_list.emplace_back(P, vec3<std::size_t>(i, j, 0), idx_1d, particle::FIXED);

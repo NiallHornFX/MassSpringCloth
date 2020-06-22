@@ -8,12 +8,12 @@
 #include <vector>
 #include <cstdio>
 
-const std::size_t pt_N = 16; // NxN Size. 
+const std::size_t pt_N = 48; // NxN Size. 
 constexpr std::size_t face_c = (pt_N - 1) * (pt_N - 1); 
 constexpr std::size_t tri_c = (pt_N - 1) * ((pt_N - 1) * 2);
 constexpr std::size_t ind_c = tri_c * 3; 
 
-const real struct_c = 10.0f, shear_c = 7.5f, bend_c = 5.0f, damp_c = 50.0f;
+const real struct_c = 0.5f, shear_c = 0.5f, bend_c = 0.5f, damp_c = 50.0f;
 constexpr real dt = 1.0f / 480.0f; 
 
 // Render Window

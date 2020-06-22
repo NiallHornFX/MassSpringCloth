@@ -28,26 +28,22 @@ public:
 	spring_type st; 
 };
 
-
 // \\ 
 
 void spring::eval_spring()
 {
-	// Spring Force k * (L - ||p-q||) * (p-q)/(||p-q||)
-	vec3<real> pq = (p0->p - p1->p); real pql = pq.length();
-	k *= (l / pql); // Scale (k) by Edge Length. 
-	vec3<real> s_force =  k * (l - pql) * pq.normalize();
+	// Spring Force k * (L - ||p0-p1||) * (p0-p1)/(||p0-q1||)
+	// Damper Force = d * (p1.v - p0.v) | -d * (p0.v - p1.v)
 
-	// Dampener Force = d * ((qv - pv) * ((p-q)/(||p-q||))) * (p-q)/(||p-q||)
-	vec3<real> pqv = (p1->v - p0->v);
-	vec3<real> d_force = d * pqv.dot(pq) * pq;
+	vec3<real> p0p1 = (p0->p - p1->p); real p0p1_l = p0p1.length();
+	vec3<real> p0p1_v = (p0->v - p1->v);
+	//k *= (l / p0p1_l); // Scale (k) by Edge Length. 
 
-	// Divde Force by Rest Face Area ?
-	//real a = 1.0f / l * l; 
-	//s_force *= a; d_force *= a; 
+	vec3<real> s_force = (-k) * (l - p0p1_l) * p0p1.normalize();
+	vec3<real> d_force = (-d) * p0p1_v;
+	vec3<real> sd_force = s_force + d_force; //Fsd = -k(l0 - l) * (p0-p1) -d(v0 - v1)
 
-	p0->f += s_force; p1->f += -s_force;
-	p0->f += d_force; p1->f += -d_force;
+	p0->f += sd_force, p1->f += -sd_force;
 }
 
 
