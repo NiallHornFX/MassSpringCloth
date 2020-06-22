@@ -17,12 +17,12 @@ void solver::step()
 {
 	// Sub Solve Calls \\
 	
-	//real s_t = (real)t_step / (real) 1e+04; 
-	//real x_s = std::sinf(s_t * 750.0f) * 5.0f; 
-	//real z_s = std::cosf(s_t+0.54 * 600.0f) * 5.0f;
-	//std::cout << s_t << "\n";
-	//std::cout << x_s << "  " << z_s << "\n";
-	//mg.x = x_s, mg.z = x_s; 
+	// Test Inline Lambda Passed to ForEach Template MF (mini vex like wrangle) - 
+	auto force_wind = [&](particle &pt) -> void
+	{
+		pt.f += vec3<real>(sin(pt.p.x * 125.0f) * 1.0f, 0.0f, cos(pt.p.z * 100.0f) * 1.0f);
+	};
+	for_each(force_wind); // Run over each pt. 
 
 	// Call Springs Eval
 	for (spring *const s : Cloth->springs)
@@ -69,9 +69,6 @@ void solver::integrate_ForwardEuler()
 		// On Free Particles - 
 		if (cur_pt.state == cur_pt.FREE)
 		{
-			// Tst Wind Force. 
-			cur_pt.f += vec3<real>(sin(cur_pt.p.x * 50.0f) * 1.0f, sin(cos(cur_pt.p.y * 40.0f) * 50.0f) * 1.0f, cos(cur_pt.p.z * 100.0f) * 1.0f);
-
 			// Air Resist - 
 			//vec3<real> ar = -5.0f * cur_pt.v.squared(); // Not correct.
 
@@ -81,5 +78,16 @@ void solver::integrate_ForwardEuler()
 			//cur_pt.v *= 0.990f; // Ad-hoc drag. 
 			cur_pt.p += dt * cur_pt.v;
 		}
+	}
+}
+
+
+// Take some Lambda L and Eval on all Particles (Future Multithreaded). 
+template <typename L>
+void solver::for_each(const L &lam)
+{
+	for (particle &cur_pt : Cloth->p_list)
+	{
+		lam(cur_pt);
 	}
 }

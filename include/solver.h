@@ -21,6 +21,9 @@ protected:
 	virtual void init(); 
 
 	// Sub Solver Operation MFs \\
+	
+	template <typename L>
+	void for_each(const L &lam);
 
 	// Constraint Breakage SubSolve Operations
 	void conBreak_left(short frame); 

@@ -90,7 +90,7 @@ real* cloth::get_ptVertexAttribs()
 			std::size_t idx_c = i + pt_N * j;
 			std::size_t idx_ii, idx_jj;
 
-			// Awful lot of branching, but fine for now. 
+			// Awful lot of branching, but fine for now. !TODO - Need to Handle Edge Points More Correctly. 
 			if (j == (pt_N - 1)) // Top Row
 			{
 				if (i == (pt_N - 1)) idx_ii = idx_c - 1; else idx_ii = idx_c + 1;  // Last TopRight pt No i+. 
