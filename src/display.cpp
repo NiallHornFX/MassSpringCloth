@@ -199,6 +199,7 @@ void display::vertex_setup()
 
 	// Model
 	model = glm::rotate(model, glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat3 normal_mat = glm::mat3(model); normal_mat = glm::transpose(glm::inverse(normal_mat)); // Normal World Matrix
 	// View
 	//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f));
 	c_pos = glm::vec3(0.5f, 0.5f, -2.0f); c_tgt = c_pos + glm::vec3(0.0f, 0.0f, 1.0f);
@@ -209,10 +210,10 @@ void display::vertex_setup()
 
 	glUseProgram(cloth_shader_prog);
 	glUniformMatrix4fv(glGetUniformLocation(cloth_shader_prog, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	glUniformMatrix3fv(glGetUniformLocation(cloth_shader_prog, "normal"), 1, GL_FALSE, glm::value_ptr(normal_mat));
 	glUniformMatrix4fv(glGetUniformLocation(cloth_shader_prog, "view"), 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(glGetUniformLocation(cloth_shader_prog, "projection"), 1, GL_FALSE, glm::value_ptr(proj));
 	glUseProgram(0);
-	
 }
 
 void display::vertex_update(real *const vert_a)
@@ -255,9 +256,11 @@ void display::render_step()
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDrawArrays(GL_POINTS, 0, pt_N * pt_N);
 #else
+	// Tri Fill
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Cloth_EBO);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDrawElements(GL_TRIANGLES, ind_c, GL_UNSIGNED_INT, 0);
+	// Wireframe
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glDrawElements(GL_TRIANGLES, ind_c, GL_UNSIGNED_INT, 0);
 #endif
