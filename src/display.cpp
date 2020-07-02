@@ -202,11 +202,12 @@ void display::vertex_setup()
 	glm::mat3 normal_mat = glm::mat3(model); normal_mat = glm::transpose(glm::inverse(normal_mat)); // Normal World Matrix
 	// View
 	//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f));
-	c_pos = glm::vec3(0.5f, 0.5f, -2.0f); c_tgt = c_pos + glm::vec3(0.0f, 0.0f, 1.0f);
+	//c_pos = glm::vec3(0.5f, 0.5f, -1.0f); c_tgt = c_pos + glm::vec3(0.0f, 0.0f, 1.0f);
+	c_pos = glm::vec3(0.5f, 0.5f, 1.0f); c_tgt = c_pos + glm::vec3(0.0f, 0.0f, -1.0f);
 	cam_update(); // Init Cam Basis
 	view = glm::lookAt(c_pos, c_tgt, glm::vec3(0.0, 1.0, 0.0));
 	// Proj
-	proj = glm::perspective(glm::radians(45.0f), ((float)width / (float)height), 0.1f, 100.0f); 
+	proj = glm::perspective(glm::radians(45.0f), ((float)width / (float)height), 0.01f, 1000.0f); 
 
 	glUseProgram(cloth_shader_prog);
 	glUniformMatrix4fv(glGetUniformLocation(cloth_shader_prog, "model"), 1, GL_FALSE, glm::value_ptr(model));
@@ -293,6 +294,7 @@ void display::poll_inputs()
 
 	float delta = 0.05f; 
 	bool input_changed = false; 
+	// Translation inversed via lookat(). 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
 		c_pos -= c_z * delta; 
